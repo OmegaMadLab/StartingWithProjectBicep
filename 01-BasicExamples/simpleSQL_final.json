@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "administratorLogin": {
+      "type": "string",
+      "defaultValue": "strongLogin"
+    },
+    "administratorLoginPassword": {
+      "type": "secureString"
+    },
+    "databaseName": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "string",
+      "metadata": {
+        "description": "target environment"
+      },
+      "allowedValues": [
+        "TEST",
+        "PROD"
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "sqlserverName": "[concat('sqlserver', uniqueString(resourceGroup().id))]",
+    "collation": "SQL_Latin1_General_CP1_CI_AS"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2019-06-01-preview",
+      "name": "[variables('sqlserverName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2019-06-01-preview",
+      "name": "[format('{0}/{1}', variables('sqlserverName'), parameters('databaseName'))]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[if(equals(parameters('environment'), 'TEST'), 'S0', 'S3')]"
+      },
+      "properties": {
+        "collation": "[variables('collation')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', variables('sqlserverName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "SqlParameters": {
+      "type": "object",
+      "value": {
+        "SqlUri": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName'))).fullyQualifiedDomainName]",
+        "SqlServerName": "[variables('sqlserverName')]"
+      }
+    }
+  }
+}

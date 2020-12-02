@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    // Parameters - information that must be provided by the user at runtime
+    // https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-templates-parameters
+    "parameters": {
+      "administratorLogin": {
+        "type": "string"
+      },
+      "administratorLoginPassword": {
+        "type": "securestring"
+      },
+      "databaseName": {
+        "type": "string"
+      },
+      "environment": {
+          "type": "string",
+          "metadata": {
+              "description": "target environment"
+          },
+          "allowedValues": [
+              "TEST",
+              "PROD"
+          ]
+      }
+    },
+    // Variables - useful to manage values that doesn't change at each deploy, or calculated values
+    // https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-templates-variables
+    "variables": {
+      "sqlserverName": "[concat('sqlserver', uniqueString(resourceGroup().id))]",
+      "collation": "SQL_Latin1_General_CP1_CI_AS"
+    },
+    // Resources - array of items you want to deploy
+    // https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-templates-resources
+    "resources": [
+      // This block is a resource
+      {
+        // Some of the attributes that are common to all the different type of resources
+        "name": "[variables('sqlserverName')]",
+        "type": "Microsoft.Sql/servers",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2019-06-01-preview",
+        "properties": {
+          /* 
+            Inside the properties block reside all the attributes specific for a resource type.
+            You can omit part of them, if you intend to use default values.
+          */
+          "administratorLogin": "[parameters('administratorLogin')]",
+          "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
+        }
+      },
+      /* 
+        The following resource is a child of Microsoft.Sql/servers, but it's specified
+        as a stand-alone resource with it's full name.
+      */
+      {
+        
+        "type": "Microsoft.Sql/servers/databases",
+        "apiVersion": "2019-06-01-preview",
+        "name": "[concat(variables('sqlServerName'), '/', parameters('databaseName'))]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))]"
+        ],
+        "sku": {
+            "name": "[if(equals(parameters('environment'), 'TEST'), 'S0', 'S3')]"
+        },
+        "properties": {
+          "collation": "[variables('collation')]"
+        }
+      }
+    ],
+    "outputs": {
+      // The output session permits you to extract values from deployed resources, to pass them to other scripts/templates
+      // https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-templates-outputs 
+      "SqlParameters": {
+         "type": "object",
+         "value": {
+            "SqlUri": "[reference(resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName]",
+            "SqlServerName": "[variables('sqlserverName')]"
+          }
+      }
+    }
+  }
