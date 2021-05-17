@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the webapp"
+      }
+    },
+    "location": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "string",
+      "metadata": {
+        "description": "The environment object of the deployment"
+      },
+      "allowedValues": [
+        "PROD",
+        "TEST"
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "hostingPlanName": "[concat('hostingPlan-', parameters('environment'), '-', parameters('location'))]",
+    "webAppName": "[concat(parameters('name'), '-', parameters('environment'), '-', parameters('location'))]",
+    "environmentSettings": {
+      "TEST": {
+        "skuName": "B1",
+        "skuCapacity": 1
+      },
+      "PROD": {
+        "skuName": "S1",
+        "skuCapacity": 2
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2020-12-01",
+      "name": "[variables('hostingPlanName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[variables('environmentSettings')[parameters('environment')].skuName]",
+        "capacity": "[variables('environmentSettings')[parameters('environment')].skuCapacity]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2020-12-01",
+      "name": "[variables('webAppName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "webAppId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
+    }
+  }
+}

@@ -1,7 +1,8 @@
 param administratorLogin string = 'strongLogin'
-param administratorLoginPassword string {
-  secure: true
-}
+
+@secure()
+param administratorLoginPassword string
+
 param location string = resourceGroup().location
 
 var sqlserverName = concat('sqlserver', uniqueString(resourceGroup().id))

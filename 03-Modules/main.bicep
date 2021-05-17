@@ -1,7 +1,7 @@
 param administratorLogin string = 'strongLogin'
-param administratorLoginPassword string {
-  secure: true
-}
+
+@secure()
+param administratorLoginPassword string
 
 var sqlserverName = concat('sqlserver', uniqueString(resourceGroup().id))
 var dbName = 'DemoDB'

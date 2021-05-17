@@ -1,17 +1,17 @@
-param administratorLogin string = 'strongLogin'
-param administratorLoginPassword string {
-  secure: true
-}
+// Parameters
+param administratorLogin string
+
+@secure()
+param administratorLoginPassword string
+
 param databaseName string
-param environment string {
-  metadata: {
-    description: 'target environment'
-  }
-  allowed: [
-    'TEST'
-    'PROD'
-  ]
-}
+
+@allowed([
+  'TEST'
+  'PROD'
+])
+@description('target environment')
+param environment string
 
 var sqlserverName = concat('sqlserver', uniqueString(resourceGroup().id))
 var collation = 'SQL_Latin1_General_CP1_CI_AS'
@@ -31,12 +31,12 @@ resource db 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
   sku: {
     name: environment == 'TEST' ? 'S0' : 'S3'
   }
-  properties: {
+  properties:{
     collation: collation
   }
 }
 
 output SqlParameters object = {
-    SqlUri: sqlSrv.properties.fullyQualifiedDomainName
-    SqlServerName: sqlSrv.name
+  SqlUri: sqlSrv.properties.fullyQualifiedDomainName
+  sqlserverName: sqlSrv.name
 }

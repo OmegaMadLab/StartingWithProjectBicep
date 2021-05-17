@@ -34,12 +34,13 @@
       "name": "[variables('sqlserverName')]",
       "location": "[resourceGroup().location]",
       "properties": {
-        "administratorLogin": "[parameters('administratorLogin')]"
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
       }
     },
     {
       "type": "Microsoft.Sql/servers/databases",
-      "apiVersion": "2020-08-01-preview",
+      "apiVersion": "2019-06-01-preview",
       "name": "[format('{0}/{1}', variables('sqlserverName'), parameters('databaseName'))]",
       "location": "[resourceGroup().location]",
       "sku": {
@@ -58,7 +59,7 @@
       "type": "object",
       "value": {
         "SqlUri": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName'))).fullyQualifiedDomainName]",
-        "SqlServerName": "[variables('sqlserverName')]"
+        "sqlserverName": "[variables('sqlserverName')]"
       }
     }
   }
