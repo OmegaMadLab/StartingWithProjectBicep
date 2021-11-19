@@ -6,7 +6,7 @@ param administratorLogin string
 param administratorLoginPassword string
 
 module sqlSrv './sqlSrv-module.bicep' = {
-  name: 'sqlServer'
+  name: sqlServerName
   params: {
     sqlServerName: sqlServerName
     administratorLogin: administratorLogin

@@ -13,7 +13,7 @@ param databaseName string
 @description('target environment')
 param environment string
 
-var sqlserverName = concat('sqlserver', uniqueString(resourceGroup().id))
+var sqlserverName = 'sqlserver${uniqueString(resourceGroup().id)}'
 var collation = 'SQL_Latin1_General_CP1_CI_AS'
 
 resource sqlSrv 'Microsoft.Sql/servers@2019-06-01-preview' = {

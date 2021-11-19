@@ -1,13 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "0.4.1008.15138",
-      "templateHash": "498533123067588801"
-    }
-  },
   "parameters": {
     "administratorLogin": {
       "type": "string"
@@ -19,9 +12,8 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
-    "sqlserverName": "[format('sqlserver{0}', uniqueString(resourceGroup().id))]",
+    "sqlserverName": "[concat('sqlserver', uniqueString(resourceGroup().id))]",
     "skuName": "S0",
     "collation": "SQL_Latin1_General_CP1_CI_AS"
   },
@@ -39,7 +31,7 @@
     {
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2019-06-01-preview",
-      "name": "[format('{0}/{1}', variables('sqlserverName'), parameters('databaseName'))]",
+      "name": "[concat(variables('sqlserverName'), '/', parameters('databaseName'))]",
       "location": "[resourceGroup().location]",
       "sku": {
         "name": "[variables('skuName')]"

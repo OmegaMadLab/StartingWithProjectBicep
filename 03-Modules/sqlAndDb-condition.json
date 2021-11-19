@@ -5,16 +5,12 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "16190315858024211928"
+      "templateHash": "12088349892299607128"
     }
   },
   "parameters": {
     "sqlServerName": {
       "type": "string"
-    },
-    "sqlServerResourceGroup": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().name]"
     },
     "location": {
       "type": "string",
@@ -64,7 +60,7 @@
         "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]"
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('sqlServerResourceGroup')), 'Microsoft.Resources/deployments', parameters('sqlServerName'))]"
+        "[resourceId('Microsoft.Resources/deployments', parameters('sqlServerName'))]"
       ]
     },
     {
@@ -72,7 +68,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-06-01",
       "name": "[parameters('sqlServerName')]",
-      "resourceGroup": "[parameters('sqlServerResourceGroup')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"

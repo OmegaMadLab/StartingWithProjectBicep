@@ -2,17 +2,14 @@ param administratorLogin string
 
 @secure()
 param administratorLoginPassword string
-
 param databaseName string
 
-//var sqlserverName = concat('sqlserver', uniqueString(resourceGroup().id))
-var sqlserverName = 'sqlserver${uniqueString(resourceGroup().id)}'
-
+var sqlserverName_var = 'sqlserver${uniqueString(resourceGroup().id)}'
 var skuName = 'S0'
 var collation = 'SQL_Latin1_General_CP1_CI_AS'
 
-resource sqlSrv 'Microsoft.Sql/servers@2019-06-01-preview' = {
-  name: sqlserverName
+resource sqlserverName 'Microsoft.Sql/servers@2019-06-01-preview' = {
+  name: sqlserverName_var
   location: resourceGroup().location
   properties: {
     administratorLogin: administratorLogin
@@ -20,20 +17,19 @@ resource sqlSrv 'Microsoft.Sql/servers@2019-06-01-preview' = {
   }
 }
 
-
-
-resource db 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
-  name: '${sqlSrv.name}/${databaseName}'
+resource sqlserverName_databaseName 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
+  parent: sqlserverName
+  name: '${databaseName}'
   location: resourceGroup().location
   sku: {
     name: skuName
   }
-  properties:{
+  properties: {
     collation: collation
   }
 }
 
 output SqlParameters object = {
-  SqlUri: sqlSrv.properties.fullyQualifiedDomainName
-  sqlserverName: sqlSrv.name
+  SqlUri: sqlserverName.properties.fullyQualifiedDomainName
+  sqlserverName: sqlserverName_var
 }
