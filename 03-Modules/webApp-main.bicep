@@ -18,7 +18,7 @@ var environmentRegion = {
   ]
 }
 
-module webApp 'webApp.bicep' = [for region in environmentRegion[environment]: {
+module webApp 'webApp-module.bicep' = [for region in environmentRegion[environment]: {
   name: 'webApp-${environment}-${region}'
   params: {
     name: name

@@ -1,13 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "0.4.1008.15138",
-      "templateHash": "7183285324833324960"
-    }
-  },
   "parameters": {
     "administratorLogin": {
       "type": "string"
@@ -17,21 +10,12 @@
     },
     "databaseName": {
       "type": "string"
-    },
-    "environment": {
-      "type": "string",
-      "metadata": {
-        "description": "target environment"
-      },
-      "allowedValues": [
-        "TEST",
-        "PROD"
-      ]
     }
   },
   "functions": [],
   "variables": {
     "sqlserverName": "[concat('sqlserver', uniqueString(resourceGroup().id))]",
+    "skuName": "S0",
     "collation": "SQL_Latin1_General_CP1_CI_AS"
   },
   "resources": [
@@ -48,10 +32,10 @@
     {
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2019-06-01-preview",
-      "name": "[format('{0}/{1}', variables('sqlserverName'), parameters('databaseName'))]",
+      "name": "[concat(variables('sqlserverName'), '/', parameters('databaseName'))]",
       "location": "[resourceGroup().location]",
       "sku": {
-        "name": "[if(equals(parameters('environment'), 'TEST'), 'S0', 'S3')]"
+        "name": "[variables('skuName')]"
       },
       "properties": {
         "collation": "[variables('collation')]"

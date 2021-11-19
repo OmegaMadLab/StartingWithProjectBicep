@@ -5,10 +5,11 @@ param administratorLoginPassword string
 
 param location string = resourceGroup().location
 
-var sqlserverName = concat('sqlserver', uniqueString(resourceGroup().id))
+param sqlServerName string
+
 
 resource sqlSrv 'Microsoft.Sql/servers@2014-04-01' = {
-  name: sqlserverName
+  name: sqlServerName
   location: location
   properties: {
     administratorLogin: administratorLogin
