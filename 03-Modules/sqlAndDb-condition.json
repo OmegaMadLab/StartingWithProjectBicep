@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "12789525381278188871"
+      "templateHash": "16190315858024211928"
     }
   },
   "parameters": {
@@ -21,7 +21,8 @@
       "defaultValue": "[resourceGroup().location]"
     },
     "createNewServer": {
-      "type": "bool"
+      "type": "bool",
+      "defaultValue": false
     },
     "administratorLogin": {
       "type": "string"

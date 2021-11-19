@@ -1,7 +1,7 @@
 param sqlServerName string
 param sqlServerResourceGroup string = resourceGroup().name
 param location string = resourceGroup().location
-param createNewServer bool
+param createNewServer bool = false
 
 param administratorLogin string
 @secure()
@@ -18,11 +18,6 @@ module deploySqlSrv './sqlSrv-module.bicep' = if (createNewServer) {
   }
 }
 
-resource sqlSrv 'Microsoft.Sql/servers@2014-04-01' existing = {
-  name: sqlServerName
-  scope: resourceGroup(sqlServerResourceGroup)
-}
-
 param databaseName string
 param collation string = 'SQL_Latin1_General_CP1_CI_AS'
 param edition string = 'basic'
@@ -30,7 +25,7 @@ param requestedServiceObjectiveName string = 'basic'
 param maxSizeBytes string = '1073741824'
 
 resource db 'Microsoft.Sql/servers/databases@2014-04-01' = {
-  name: createNewServer ? '${deploySqlSrv.name}/${databaseName}' : '${sqlSrv.name}/${databaseName}'
+  name: createNewServer ? '${deploySqlSrv.name}/${databaseName}' : '${sqlServerName}/${databaseName}'
   location: location
   properties: {
     edition: edition
