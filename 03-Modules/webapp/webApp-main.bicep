@@ -1,33 +1,26 @@
 @description('The name of the webapp')
 param name string
 
-@allowed([
-  'PROD'
-  'TEST'
-])
-@description('The environment object of the deployment')
-param environment string
+@description('The location of the webapp')
+param location array
 
-var environmentRegion = {
-  TEST: [
-    'westeurope'
-  ]
-  PROD: [
-    'westeurope'
-    'northeurope'
-  ]
-}
+@description('The tier of the App Service Plan')
+param skuName string
 
-module webApp 'webApp-module.bicep' = [for region in environmentRegion[environment]: {
-  name: 'webApp-${environment}-${region}'
+@description('Number of instances for the App Service Plan')
+param skuCapacity int
+
+module webApp 'webApp-module.bicep' = [for region in location: {
+  name: 'webApp-${region}'
   params: {
     name: name
-    environment: environment
     location: region
+    skuName: skuName
+    skuCapacity: skuCapacity
   }
 }]
 
-resource trafficManager 'Microsoft.Network/trafficmanagerprofiles@2018-08-01' = if (environment == 'PROD' ? bool('true') : bool('false')) {
+resource trafficManager 'Microsoft.Network/trafficmanagerprofiles@2022-04-01' = if (length(location) > 1 ? bool('true') : bool('false')) {
   name: 'TrafficManager'
   location: 'global'
   properties: {
@@ -44,7 +37,7 @@ resource trafficManager 'Microsoft.Network/trafficmanagerprofiles@2018-08-01' = 
       toleratedNumberOfFailures: 3
       timeoutInSeconds: 10
     }
-    endpoints: [for (region, i) in environmentRegion[environment]: {
+    endpoints: [for (region, i) in location: {
       name: '${region}-Endpoint'
       type: 'Microsoft.Network/trafficManagerProfiles/azureEndpoints'
       properties: {
@@ -59,5 +52,4 @@ resource trafficManager 'Microsoft.Network/trafficmanagerprofiles@2018-08-01' = 
   }
 }
 
-output tfUri string = trafficManager.properties.dnsConfig.fqdn
-
+output tfUri string = length(location) > 1 ? trafficManager.properties.dnsConfig.fqdn : ''
